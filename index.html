@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>フワ — Footed Whale</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --fg: #f4f1e8;
+      --muted: #9a9a92;
+      --acid: #d8ff37;
+      --line: #2b2b2b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px),
+        var(--bg);
+      background-size: 48px 48px;
+      color: var(--fg);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    header {
+      min-height: 100vh;
+      padding: 28px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      border: 12px solid var(--acid);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::after {
+      content: "01 / ADAPT";
+      position: absolute;
+      right: -42px;
+      top: 110px;
+      transform: rotate(90deg);
+      font-size: 11px;
+      letter-spacing: .3em;
+      color: var(--acid);
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+    }
+
+    .brand {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      font-weight: 700;
+    }
+
+    .brand .jp {
+      font-size: 26px;
+      color: var(--acid);
+    }
+
+    .brand .en {
+      color: var(--fg);
+    }
+
+    .status {
+      color: var(--muted);
+    }
+
+    .hero {
+      align-self: center;
+      max-width: 1050px;
+      padding: 9vh 0;
+    }
+
+    .eyebrow {
+      margin-bottom: 18px;
+      color: var(--acid);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 920px;
+      font-size: clamp(64px, 11vw, 180px);
+      line-height: .82;
+      letter-spacing: -.07em;
+      text-transform: uppercase;
+    }
+
+    h1 span {
+      display: block;
+      color: var(--acid);
+    }
+
+    .blurb {
+      margin-top: 34px;
+      max-width: 610px;
+      font-size: clamp(16px, 2vw, 22px);
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    .blurb strong {
+      color: var(--fg);
+      font-weight: 500;
+    }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 24px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      font-size: 11px;
+      line-height: 1.5;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+    }
+
+    .tagline {
+      color: var(--fg);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 700px) {
+      header {
+        padding: 18px;
+        border-width: 8px;
+      }
+
+      nav,
+      footer {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      h1 {
+        font-size: clamp(58px, 19vw, 100px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="brand">
+        <span class="jp">フワ</span>
+        <span class="en">Footed Whale</span>
+      </div>
+
+      <div class="status">AI Engineering / Synthetic Evolution</div>
+    </nav>
+
+    <section class="hero">
+      <div class="eyebrow">Evolution, with revisions.</div>
+
+      <h1>
+        Nature
+        <span>misses things.</span>
+      </h1>
+
+      <p class="blurb">
+        Evolution is not a plan. It is a sequence of useful mistakes.<br />
+        <strong>We work the same way.</strong>
+        Footed Whale builds AI systems by exploiting the gaps,
+        mutations and improbable advantages that progress leaves behind.
+      </p>
+    </section>
+
+    <footer>
+      <div class="tagline">A minor correction to evolution.</div>
+      <div>フワ / FOOTED WHALE / EST. NOW</div>
+    </footer>
+  </header>
+</body>
+</html>
