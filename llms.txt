@@ -1,0 +1,7 @@
+# Footed Whale (フワ)
+
+> Footed Whale is an AI engineering studio. We evolve prompt pipelines — mutate, evaluate, select — and when the gains go quiet we go wide: tree search, Monte Carlo rollouts, deliberate detours down the strange branches. Then we ship whatever survived.
+
+## Contact
+
+- [footedwhale.com](https://footedwhale.com/): the contact email is available to in-browser agents through the WebMCP tool `get_contact_email` (no input, read-only).

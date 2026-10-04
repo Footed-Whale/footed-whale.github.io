@@ -4,193 +4,929 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>フワ — Footed Whale</title>
+  <meta name="description" content="Footed Whale is an AI engineering studio. We evolve prompt pipelines and search the strange branches." />
+  <meta name="theme-color" content="#0a0a0b" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23d4ff2a'/%3E%3Crect x='3' y='3' width='10' height='3' fill='%230a0a0b'/%3E%3Crect x='10' y='6' width='3' height='7' fill='%230a0a0b'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@900&text=%E3%83%95%E3%83%AF&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0a0a0a;
-      --fg: #f4f1e8;
-      --muted: #9a9a92;
-      --acid: #d8ff37;
-      --line: #2b2b2b;
+      --ink: #0a0a0b;
+      --ink-2: #141416;
+      --bone: #ecebe4;
+      --dim: #7c7c76;
+      --line: #2a2a2d;
+      --acid: #d4ff2a;
+      --pink: #ff2e88;
+      --cyan: #3ef0ff;
+      --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+      --disp: "Archivo", "Arial Narrow", sans-serif;
+      --jp: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
+
+    html, body { margin: 0; background: var(--ink); color: var(--bone); }
 
     body {
-      margin: 0;
       min-height: 100vh;
-      background:
-        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px),
-        var(--bg);
-      background-size: 48px 48px;
-      color: var(--fg);
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      overflow-x: hidden;
     }
 
-    header {
+    ::selection { background: var(--acid); color: var(--ink); }
+
+    /* ---------- background layers ---------- */
+
+    #tree {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .grid, .scan, .grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .grid {
+      z-index: 1;
+      background:
+        linear-gradient(rgba(236,235,228,.035) 1px, transparent 1px) 0 0 / 64px 64px,
+        linear-gradient(90deg, rgba(236,235,228,.035) 1px, transparent 1px) 0 0 / 64px 64px;
+    }
+
+    .scan {
+      z-index: 5;
+      background: repeating-linear-gradient(to bottom, rgba(0,0,0,.22) 0 1px, transparent 1px 3px);
+      mix-blend-mode: multiply;
+    }
+
+    .grain {
+      z-index: 6;
+      opacity: .09;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* registration marks */
+    .reg {
+      position: fixed;
+      z-index: 4;
+      width: 18px;
+      height: 18px;
+      pointer-events: none;
+    }
+    .reg::before, .reg::after {
+      content: "";
+      position: absolute;
+      background: var(--bone);
+    }
+    .reg::before { left: 8px; top: 0; width: 2px; height: 18px; }
+    .reg::after { top: 8px; left: 0; height: 2px; width: 18px; }
+    .reg.tl { top: 14px; left: 14px; }
+    .reg.tr { top: 14px; right: 14px; }
+    .reg.bl { bottom: 14px; left: 14px; }
+    .reg.br { bottom: 14px; right: 14px; }
+
+    /* ---------- layout ---------- */
+
+    main {
+      position: relative;
+      z-index: 3;
       min-height: 100vh;
-      padding: 28px;
+      padding: 44px clamp(20px, 4vw, 56px) 40px;
       display: grid;
       grid-template-rows: auto 1fr auto;
-      border: 12px solid var(--acid);
-      position: relative;
-      overflow: hidden;
+      gap: 32px;
     }
 
-    header::after {
-      content: "01 / ADAPT";
-      position: absolute;
-      right: -42px;
-      top: 110px;
-      transform: rotate(90deg);
-      font-size: 11px;
-      letter-spacing: .3em;
-      color: var(--acid);
-    }
-
-    nav {
+    .bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 24px;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: .14em;
+      gap: 16px;
+      flex-wrap: wrap;
     }
 
-    .brand {
+    .bar .id { display: flex; gap: 0; }
+    .bar .id span { padding: 5px 9px; border: 1px solid var(--line); background: var(--ink); }
+    .bar .id span:first-child { background: var(--bone); color: var(--ink); border-color: var(--bone); font-weight: 700; }
+
+    .hud {
       display: flex;
-      align-items: baseline;
-      gap: 14px;
-      font-weight: 700;
+      gap: 18px;
+      color: var(--dim);
+      background: var(--ink);
+      padding: 5px 9px;
+      border: 1px solid var(--line);
+    }
+    .hud b { color: var(--bone); font-weight: 400; }
+    .hud .live { color: var(--acid); }
+    .hud .live::before {
+      content: "";
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      margin-right: 7px;
+      background: var(--acid);
+      animation: blink 1.1s steps(1) infinite;
     }
 
-    .brand .jp {
-      font-size: 26px;
-      color: var(--acid);
-    }
+    @keyframes blink { 50% { opacity: 0; } }
 
-    .brand .en {
-      color: var(--fg);
-    }
-
-    .status {
-      color: var(--muted);
-    }
-
-    .hero {
+    .stage {
       align-self: center;
-      max-width: 1050px;
-      padding: 9vh 0;
+      display: grid;
+      grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+      gap: clamp(24px, 4vw, 64px);
+      align-items: end;
     }
 
-    .eyebrow {
-      margin-bottom: 18px;
-      color: var(--acid);
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: .22em;
-      text-transform: uppercase;
-    }
+    /* ---------- logotype ---------- */
 
-    h1 {
+    .mark { position: relative; }
+
+    .logo {
+      position: relative;
       margin: 0;
-      max-width: 920px;
-      font-size: clamp(64px, 11vw, 180px);
-      line-height: .82;
-      letter-spacing: -.07em;
-      text-transform: uppercase;
-    }
-
-    h1 span {
-      display: block;
+      font-family: var(--jp);
+      font-weight: 900;
+      font-size: clamp(132px, 22vw, 340px);
+      line-height: .86;
+      letter-spacing: -.06em;
       color: var(--acid);
+      text-transform: none;
     }
 
-    .blurb {
-      margin-top: 34px;
-      max-width: 610px;
-      font-size: clamp(16px, 2vw, 22px);
-      line-height: 1.45;
-      color: var(--muted);
+    .logo::before, .logo::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .logo::before { color: var(--pink); transform: translate(-.035em, 0); mix-blend-mode: screen; opacity: 0; }
+    .logo::after { color: var(--cyan); transform: translate(.035em, 0); mix-blend-mode: screen; opacity: 0; }
+
+    .logo.glitch::before { opacity: .9; animation: slice 280ms steps(2) both; }
+    .logo.glitch::after { opacity: .9; animation: slice 280ms steps(2) reverse both; }
+
+    @keyframes slice {
+      0%   { clip-path: inset(10% 0 70% 0); }
+      25%  { clip-path: inset(55% 0 20% 0); }
+      50%  { clip-path: inset(30% 0 52% 0); }
+      75%  { clip-path: inset(78% 0 4% 0); }
+      100% { clip-path: inset(0 0 100% 0); }
     }
 
-    .blurb strong {
-      color: var(--fg);
-      font-weight: 500;
-    }
-
-    footer {
+    .wordmark {
       display: flex;
       justify-content: space-between;
-      align-items: end;
-      gap: 24px;
-      padding-top: 22px;
-      border-top: 1px solid var(--line);
-      font-size: 11px;
-      line-height: 1.5;
-      text-transform: uppercase;
-      letter-spacing: .12em;
-      color: var(--muted);
+      align-items: center;
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 2px solid var(--bone);
+      font-family: var(--disp);
+      font-stretch: 125%;
+      font-weight: 800;
+      font-size: clamp(14px, 1.5vw, 20px);
+      letter-spacing: .32em;
+    }
+    .wordmark small {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      font-weight: 400;
+      color: var(--dim);
     }
 
-    .tagline {
-      color: var(--fg);
-      font-size: 14px;
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .chip { padding: 4px 8px; font-weight: 700; font-size: 10px; }
+    .chip.pink { background: var(--pink); color: var(--ink); }
+    .chip.out { border: 1px solid var(--bone); }
+    .chip.acid { background: var(--acid); color: var(--ink); }
+
+    /* ---------- transmission panel ---------- */
+
+    .panel {
+      background: rgba(10,10,11,.88);
+      border: 1px solid var(--line);
+      max-width: 760px;
+      justify-self: end;
+      width: 100%;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 10px;
+      background: var(--acid);
+      color: var(--ink);
       font-weight: 700;
     }
 
-    @media (max-width: 700px) {
-      header {
-        padding: 18px;
-        border-width: 8px;
-      }
+    .panel-body { padding: clamp(18px, 2.4vw, 30px); }
 
-      nav,
-      footer {
-        align-items: flex-start;
-        flex-direction: column;
-      }
+    .blurb {
+      min-height: 4.1em;
+      margin: 0;
+      font-family: var(--disp);
+      font-stretch: 72%;
+      font-weight: 800;
+      font-size: clamp(30px, 4.2vw, 60px);
+      line-height: 1.02;
+      letter-spacing: -.01em;
+      cursor: pointer;
+      user-select: text;
+    }
+    .blurb .g { color: var(--acid); font-family: var(--mono); font-weight: 400; font-stretch: 100%; }
+    .blurb .g.p { color: var(--pink); }
 
-      h1 {
-        font-size: clamp(58px, 19vw, 100px);
-      }
+    .progress {
+      height: 3px;
+      margin-top: 22px;
+      background: var(--line);
+    }
+    .progress i {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: var(--pink);
+    }
+
+    .about {
+      margin: 22px 0 0;
+      max-width: 620px;
+      font-size: 12px;
+      line-height: 1.7;
+      letter-spacing: .02em;
+      text-transform: none;
+      color: #b8b7b0;
+    }
+    .about strong { color: var(--bone); font-weight: 700; }
+
+    /* ---------- footer ---------- */
+
+    footer {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 24px;
+      align-items: end;
+    }
+
+    .barcode { display: block; width: 228px; height: 36px; }
+    .barcode + span { display: block; margin-top: 4px; color: var(--dim); font-size: 9px; }
+
+    .rule {
+      height: 10px;
+      background: repeating-linear-gradient(-45deg, var(--pink) 0 6px, transparent 6px 12px);
+      opacity: .85;
+      align-self: center;
+    }
+
+    .links { text-align: right; line-height: 1.8; color: var(--dim); }
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .contact { display: inline-flex; gap: 0; color: var(--bone); text-decoration: none; cursor: pointer; }
+    .contact .k { padding: 3px 7px; background: var(--acid); color: var(--ink); font-weight: 700; }
+    .contact .addr {
+      box-sizing: content-box;
+      width: 21ch; /* one cell per address character */
+      padding: 3px 8px;
+      border: 1px solid var(--line);
+      border-left: 0;
+      font-family: var(--mono);
+      letter-spacing: 0;
+      text-transform: none;
+      text-align: left;
+      white-space: nowrap;
+    }
+    /* scramble glyphs fall back to non-mono fonts; pin each to one cell so the width never shifts */
+    .contact .addr .g { display: inline-block; width: 1ch; overflow: hidden; text-align: center; vertical-align: top; color: var(--acid); }
+    .contact .addr .g.p { color: var(--pink); }
+    .contact:hover .addr, .contact:focus-visible .addr { border-color: var(--acid); }
+    .contact:focus-visible { outline: 1px solid var(--pink); outline-offset: 3px; }
+
+    /* ---------- responsive ---------- */
+
+    @media (max-width: 900px) {
+      .stage { grid-template-columns: 1fr; align-items: start; }
+      .panel { justify-self: stretch; }
+      .hud .opt { display: none; }
+    }
+
+    @media (max-width: 560px) {
+      main { padding-top: 40px; gap: 24px; }
+      .bar .id span:nth-child(3) { display: none; }
+      footer { grid-template-columns: 1fr; }
+      .rule { display: none; }
+      .links { text-align: left; }
+      .blurb { font-size: clamp(28px, 9vw, 40px); min-height: 4.2em; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hud .live::before { animation: none; }
     }
   </style>
 </head>
 <body>
-  <header>
-    <nav>
-      <div class="brand">
-        <span class="jp">フワ</span>
-        <span class="en">Footed Whale</span>
+  <canvas id="tree" aria-hidden="true"></canvas>
+  <div class="grid"></div>
+  <div class="scan"></div>
+  <div class="grain"></div>
+  <i class="reg tl"></i><i class="reg tr"></i><i class="reg bl"></i><i class="reg br"></i>
+
+  <main>
+    <div class="bar">
+      <div class="id"><span>FWHL-01</span><span>AI Engineering</span><span>Search / Select / Ship</span></div>
+      <div class="hud" aria-hidden="true">
+        <span class="live">Exploring</span>
+        <span>Gen <b id="h-gen">001</b></span>
+        <span>Iter <b id="h-iter">0000</b></span>
+        <span class="opt">Nodes <b id="h-nodes">000</b></span>
+        <span>Best <b id="h-best">.000</b></span>
+      </div>
+    </div>
+
+    <section class="stage">
+      <div class="mark">
+        <h1 class="logo" id="logo" data-text="フワ" aria-label="フワ — Footed Whale">フワ</h1>
+        <div class="wordmark">FOOTED WHALE <small>AMBULOCETUS / 49 MYA</small></div>
+        <div class="chips">
+          <span class="chip pink">▲ Unsupervised exploration</span>
+          <span class="chip out">Walks · Swims</span>
+        </div>
       </div>
 
-      <div class="status">AI Engineering / Synthetic Evolution</div>
-    </nav>
-
-    <section class="hero">
-      <div class="eyebrow">Evolution, with revisions.</div>
-
-      <h1>
-        Nature
-        <span>misses things.</span>
-      </h1>
-
-      <p class="blurb">
-        Evolution is not a plan. It is a sequence of useful mistakes.<br />
-        <strong>We work the same way.</strong>
-        Footed Whale builds AI systems by exploiting the gaps,
-        mutations and improbable advantages that progress leaves behind.
-      </p>
+      <div class="panel">
+        <div class="panel-head"><span>Transmission</span><span id="tx-count">01 / 12</span></div>
+        <div class="panel-body">
+          <p class="blurb" id="blurb" title="Click for the next transmission">We don't write prompts. We breed them.</p>
+          <div class="progress"><i id="tx-bar"></i></div>
+          <p class="about">
+            <strong>Footed Whale is an AI engineering studio.</strong>
+            We evolve prompt pipelines — mutate, evaluate, select — and when the gains go quiet we go wide:
+            tree search, Monte Carlo rollouts, deliberate detours down the strange branches.
+            Then we ship whatever survived.
+          </p>
+        </div>
+      </div>
     </section>
 
     <footer>
-      <div class="tagline">A minor correction to evolution.</div>
-      <div>フワ / FOOTED WHALE / EST. NOW</div>
+      <div><canvas class="barcode" id="code" aria-hidden="true"></canvas><span>フワ-0049-MYA-∞</span></div>
+      <div class="rule"></div>
+      <div class="links">
+        <a class="contact" id="contact" href="#"><span class="k">Contact ▸</span><span class="sr" id="contact-sr"> email Footed Whale (reveals address)</span><span class="addr" id="contact-addr" aria-hidden="true">ｺﾝﾀｸﾄ#ﾌｯﾃｯﾄﾞ/ﾎｴｰﾙ_ｺﾑ01ｦﾝ</span></a><br />
+        © 2026 Footed Whale
+      </div>
     </footer>
-  </header>
+  </main>
+
+  <script>
+  (() => {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const $ = id => document.getElementById(id);
+    const pad = (n, w) => String(n).padStart(w, '0');
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const glyphs = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝ01/<>#_';
+
+    /* ================= MCTS background ================= */
+
+    const cv = $('tree'), ctx = cv.getContext('2d');
+    let W = 0, H = 0, maxDepth = 10;
+    const MAX_NODES = 300, C = 1.15;
+    let nodes, root, iter, gen = 1, phase, phaseT, fade = 1, lastPath = [], flash = 0;
+    // pointer interaction: hot = node under the cursor (sticky), picked = clicked fork point
+    let mouse = null, hot = null, hotA = 0, hotHold = 0, hotGlitch = 0;
+    let picked = null, pickT = 0, forceLeft = 0, forceAcc = 0;
+
+    function resize() {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      W = innerWidth; H = innerHeight;
+      cv.width = W * dpr; cv.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      maxDepth = W < 600 ? 6 : W < 1000 ? 8 : 11;
+    }
+
+    function mk(parent, forced) {
+      const user = !!(forced || (parent && parent.user));
+      const n = {
+        parent, kids: [], visits: 0, value: 0, id: nodes.length, user,
+        depth: parent ? parent.depth + 1 : 0,
+        q: parent ? clamp(parent.q + (Math.random() - .5) * .38 + (forced ? .06 : 0), 0, 1) : .5,
+        x: parent ? parent.x : W * .05, y: parent ? parent.y : H / 2, tx: 0, ty: 0
+      };
+      nodes.push(n);
+      return n;
+    }
+
+    function reset() {
+      nodes = []; iter = 0; phase = 'grow'; phaseT = 0; fade = 1;
+      hot = picked = null; hotA = 0; forceLeft = 0; lastPath = [];
+      root = mk(null);
+    }
+
+    function step(from = root, force = false) {
+      const path = [];
+      for (let a = from; a; a = a.parent) path.unshift(a);
+      let n = from;
+      for (;;) {
+        // progressive widening: a node earns more children as it's visited; forced steps (clicks) always branch
+        const canGrow = n.depth < maxDepth && (force
+          ? n.kids.length < 4
+          : phase === 'grow' && n.kids.length < 3 && n.visits >= n.kids.length * n.kids.length * 4);
+        if (canGrow) { const c = mk(n, force); n.kids.push(c); path.push(c); n = c; break; }
+        if (!n.kids.length) break;
+        let best = null, bs = -1;
+        for (const c of n.kids) {
+          const s = c.visits ? c.value / c.visits + C * Math.sqrt(Math.log(n.visits + 1) / c.visits) : 9;
+          if (s > bs) { bs = s; best = c; }
+        }
+        n = best; path.push(n);
+      }
+      const r = clamp(n.q + (Math.random() - .5) * .3, 0, 1);
+      for (const p of path) { p.visits++; p.value += r; }
+      lastPath = path; flash = 1; iter++;
+      if (nodes.length >= MAX_NODES && phase === 'grow') { phase = 'settle'; phaseT = 0; }
+    }
+
+    function layout() {
+      const deep = nodes.reduce((m, n) => Math.max(m, n.depth), 4);
+      const left = W * .04, dx = (W * .92) / deep;
+      const leaves = n => (n.l = n.kids.length ? n.kids.reduce((a, c) => a + leaves(c), 0) : 1);
+      leaves(root);
+      const place = (n, lo, hi) => {
+        n.tx = left + n.depth * dx; n.ty = (lo + hi) / 2;
+        let a = lo;
+        for (const c of n.kids) { const b = a + (hi - lo) * c.l / n.l; place(c, a, b); a = b; }
+      };
+      place(root, H * .1, H * .9);
+      // the hot node leans toward the cursor
+      if (hot && mouse) {
+        const dx = mouse.x - hot.tx, dy = mouse.y - hot.ty;
+        if (Math.hypot(dx, dy) < 70) { hot.tx += dx * .35; hot.ty += dy * .35; }
+      }
+    }
+
+    function nearest(x, y, r) {
+      let best = null, bd = r * r;
+      for (const n of nodes) {
+        const d = (n.x - x) ** 2 + (n.y - y) ** 2;
+        if (d < bd) { bd = d; best = n; }
+      }
+      return best;
+    }
+
+    function forceStep() {
+      forceLeft--;
+      if (!picked || nodes.length > MAX_NODES + 160) { forceLeft = 0; return; }
+      step(picked, true);
+    }
+
+    function tickInteract(dt) {
+      hotGlitch = Math.max(0, hotGlitch - dt / 240);
+      if (hot) {
+        // a resting cursor sends no moves, so keep holding while it stays near the node
+        if (mouse && Math.hypot(mouse.x - hot.x, mouse.y - hot.y) < 40) hotHold = Math.max(hotHold, 1400);
+        hotHold -= dt;
+        hotA = hotHold > 0 ? Math.min(1, hotA + dt / 120) : hotA - dt / 700;
+        if (hotA <= 0) { hotA = 0; hot = null; }
+      }
+      if (picked) pickT += dt;
+      if (forceLeft > 0 && (forceAcc += dt) > 60) { forceAcc = 0; forceStep(); }
+    }
+
+    const blocked = el => el instanceof Element && el.closest('a, .panel');
+
+    addEventListener('pointermove', e => {
+      if (e.pointerType !== 'mouse') return;
+      mouse = blocked(e.target) || phase === 'fade' ? null : { x: e.clientX, y: e.clientY };
+      const n = mouse && nearest(mouse.x, mouse.y, 38);
+      if (n) {
+        if (n !== hot) { hot = n; hotGlitch = 1; }
+        hotHold = 1400;
+        if (reduce) { hotA = 1; draw(true); }
+      }
+      document.documentElement.style.cursor = n ? 'crosshair' : '';
+    });
+    addEventListener('pointerleave', () => { mouse = null; });
+
+    addEventListener('pointerdown', e => {
+      if (e.button !== 0 || blocked(e.target) || phase === 'fade') return;
+      let n = nearest(e.clientX, e.clientY, e.pointerType === 'mouse' ? 38 : 56);
+      if (!n) return;
+      while (n.depth >= maxDepth - 1 && n.parent) n = n.parent;
+      picked = n; pickT = 0; forceLeft = 16;
+      hot = n; hotA = 1; hotHold = 2400; hotGlitch = 1;
+      if (phase === 'settle') phaseT = 0;
+      if (reduce) { while (forceLeft > 0) forceStep(); draw(true); }
+    });
+
+    function bestPath() {
+      const p = [root];
+      let n = root;
+      while (n.kids.length) {
+        n = n.kids.reduce((a, c) => (c.visits > a.visits ? c : a));
+        p.push(n);
+      }
+      return p;
+    }
+
+    function elbow(a, b, ox = 0, oy = 0) {
+      const mx = (a.x + b.x) / 2 + ox;
+      ctx.moveTo(a.x + ox, a.y + oy); ctx.lineTo(mx, a.y + oy); ctx.lineTo(mx, b.y + oy); ctx.lineTo(b.x + ox, b.y + oy);
+    }
+
+    function strokeLineage(n, color, width, ox = 0, oy = 0) {
+      ctx.strokeStyle = color; ctx.lineWidth = width;
+      ctx.beginPath();
+      for (let a = n; a.parent; a = a.parent) elbow(a.parent, a, ox, oy);
+      ctx.stroke();
+    }
+
+    function strokeSubtree(n, color) {
+      ctx.strokeStyle = color; ctx.lineWidth = 1;
+      ctx.beginPath();
+      const walk = p => { for (const c of p.kids) { elbow(p, c); walk(c); } };
+      walk(n);
+      ctx.stroke();
+    }
+
+    function reticle(n, size, color, width = 1.5) {
+      const h = size / 2, k = size / 3;
+      ctx.strokeStyle = color; ctx.lineWidth = width;
+      ctx.beginPath();
+      for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+        const cx = n.x + sx * h, cy = n.y + sy * h;
+        ctx.moveTo(cx, cy - sy * k); ctx.lineTo(cx, cy); ctx.lineTo(cx - sx * k, cy);
+      }
+      ctx.stroke();
+    }
+
+    const noisy = (str, amt) => amt <= 0 ? str : str.replace(/[^ ]/g, ch =>
+      Math.random() < amt * .7 ? glyphs[Math.floor(Math.random() * glyphs.length)] : ch);
+
+    function tag(n, text, color) {
+      ctx.font = '10px "JetBrains Mono", monospace';
+      const lw = ctx.measureText(text).width;
+      const x = n.x + 14 + lw > W - 8 ? n.x - 14 - lw : n.x + 14;
+      ctx.fillStyle = 'rgba(10,10,11,.85)';
+      ctx.fillRect(x - 4, n.y - 22, lw + 8, 14);
+      ctx.fillStyle = color;
+      ctx.fillText(text, x, n.y - 11);
+    }
+
+    function draw(snap) {
+      layout();
+      const k = snap ? 1 : .14;
+      for (const n of nodes) { n.x += (n.tx - n.x) * k; n.y += (n.ty - n.y) * k; }
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.globalAlpha = fade;
+
+      // all edges
+      ctx.lineWidth = 1;
+      for (const n of nodes) {
+        if (!n.parent) continue;
+        const v = Math.min(1, n.visits / 30);
+        ctx.strokeStyle = n.user ? `rgba(62,240,255,${.5 + .4 * v})` : `rgba(236,235,228,${.06 + .3 * v})`;
+        ctx.beginPath(); elbow(n.parent, n); ctx.stroke();
+      }
+
+      // latest rollout
+      if (flash > .02 && lastPath.length > 1) {
+        ctx.strokeStyle = `rgba(255,46,136,${.75 * flash})`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        for (let i = 1; i < lastPath.length; i++) elbow(lastPath[i - 1], lastPath[i]);
+        ctx.stroke();
+      }
+
+      // best line
+      const bp = bestPath();
+      ctx.strokeStyle = '#d4ff2a';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 1; i < bp.length; i++) elbow(bp[i - 1], bp[i]);
+      ctx.stroke();
+
+      // nodes
+      for (const n of nodes) {
+        const s = n.kids.length ? 3 : 2;
+        ctx.fillStyle = `rgba(236,235,228,${.25 + .5 * Math.min(1, n.visits / 20)})`;
+        ctx.fillRect(n.x - s / 2, n.y - s / 2, s, s);
+      }
+      ctx.fillStyle = '#d4ff2a';
+      for (const n of bp) ctx.fillRect(n.x - 3, n.y - 3, 6, 6);
+
+      // picked fork point: snap ring + persistent reticle
+      if (picked) {
+        if (pickT < 650) {
+          const t = pickT / 650, sz = 10 + t * 70;
+          ctx.globalAlpha = fade * (1 - t);
+          ctx.strokeStyle = '#ff2e88'; ctx.lineWidth = 2;
+          ctx.strokeRect(picked.x - sz / 2, picked.y - sz / 2, sz, sz);
+          ctx.globalAlpha = fade;
+        }
+        reticle(picked, 18, '#ff2e88', 2);
+        ctx.fillStyle = '#ff2e88';
+        ctx.fillRect(picked.x - 3, picked.y - 3, 6, 6);
+      }
+
+      // hovered lineage: sticky highlight with a chromatic glitch when it changes target
+      if (hot && hotA > 0) {
+        ctx.globalAlpha = fade * hotA;
+        strokeSubtree(hot, 'rgba(236,235,228,.45)');
+        if (hotGlitch > 0) {
+          const o = 2 + hotGlitch * 6, j = () => (Math.random() - .5) * 6 * hotGlitch;
+          strokeLineage(hot, 'rgba(255,46,136,.8)', 2, -o, j());
+          strokeLineage(hot, 'rgba(62,240,255,.8)', 2, o, j());
+        }
+        strokeLineage(hot, '#ecebe4', 2);
+        reticle(hot, 14 + hotGlitch * 10, '#d4ff2a');
+        const mean = hot.visits ? hot.value / hot.visits : 0;
+        tag(hot, noisy(`N${pad(hot.id, 3)} · d${hot.depth} · n=${hot.visits} · q=${mean.toFixed(3).replace(/^0/, '')}${hot === picked ? ' · FORK' : ''}`, hotGlitch), hot === picked ? '#ff2e88' : '#d4ff2a');
+        ctx.globalAlpha = fade;
+      }
+
+      const tip = bp[bp.length - 1];
+      const score = tip.visits ? tip.value / tip.visits : 0;
+      if (W > 700) {
+        ctx.font = '10px "JetBrains Mono", monospace';
+        const label = `▸ ${score.toFixed(3)}  n=${tip.visits}`;
+        const lw = ctx.measureText(label).width;
+        ctx.fillText(label, tip.x + 8 + lw > W - 8 ? tip.x - 8 - lw : tip.x + 8, tip.y - 6);
+      }
+      ctx.globalAlpha = 1;
+
+      $('h-gen').textContent = pad(gen, 3);
+      $('h-iter').textContent = pad(iter, 4);
+      $('h-nodes').textContent = pad(nodes.length, 3);
+      $('h-best').textContent = score.toFixed(3).replace(/^0/, '');
+    }
+
+    resize();
+    reset();
+    addEventListener('resize', () => { resize(); if (reduce) draw(true); });
+
+    if (reduce) {
+      while (phase === 'grow') step();
+      for (let i = 0; i < 600; i++) step();
+      draw(true);
+    }
+
+    /* ================= transmissions ================= */
+
+    const lines = [
+      "We don't write prompts. We breed them.",
+      "Generation 4,812. Fitness +0.3%. Something grew legs.",
+      "Monte Carlo is not a place. It is a way of getting lost on purpose.",
+      "Every prompt in production is a mutation nobody has killed yet.",
+      "UCB1 says: visit the weird branch. We listen.",
+      "Selection pressure, applied to language.",
+      "Fifty million years ago a whale had feet. We kept the receipts.",
+      "Your pipeline has ancestors. We read the fossils.",
+      "Exploration is expensive. Not exploring costs more.",
+      "The eval is the environment. The environment is hungry.",
+      "We prune the tree so your product doesn't have to.",
+      "Survival of the fittest prompt. Funerals for the rest."
+    ];
+    const HOLD = 5200;
+    const blurb = $('blurb'), bar = $('tx-bar'), count = $('tx-count'), logo = $('logo');
+    let idx = 0, held = 0, hover = false, queue = null, qf = 0;
+
+    function scramble(to) {
+      const from = blurb.textContent;
+      const len = Math.max(from.length, to.length);
+      queue = [];
+      for (let i = 0; i < len; i++) {
+        const start = Math.floor(Math.random() * 18) + Math.floor(i * .4);
+        queue.push({ from: from[i] || '', to: to[i] || '', start, end: start + 8 + Math.floor(Math.random() * 16), ch: '' });
+      }
+      qf = 0;
+    }
+
+    function tickScramble() {
+      if (!queue) return;
+      let out = '', done = 0;
+      for (const q of queue) {
+        if (qf >= q.end) { done++; out += q.to; }
+        else if (qf >= q.start) {
+          if (q.to === ' ') { out += ' '; continue; }
+          if (!q.ch || Math.random() < .3) q.ch = glyphs[Math.floor(Math.random() * glyphs.length)];
+          out += `<span class="g${Math.random() < .15 ? ' p' : ''}">${q.ch}</span>`;
+        } else out += q.from.replace('<', '&lt;');
+      }
+      blurb.innerHTML = out;
+      qf++;
+      if (done === queue.length) { queue = null; blurb.textContent = lines[idx]; }
+    }
+
+    function next() {
+      idx = (idx + 1) % lines.length;
+      held = 0;
+      count.textContent = `${pad(idx + 1, 2)} / ${lines.length}`;
+      if (reduce) blurb.textContent = lines[idx];
+      else { scramble(lines[idx]); glitch(); }
+    }
+
+    function glitch() {
+      logo.classList.remove('glitch');
+      void logo.offsetWidth;
+      logo.classList.add('glitch');
+    }
+
+    /* ================= contact address ================= */
+
+    // Cycles between noise and the address so it can be discovered; pinned open on hover/focus/tap.
+    const contact = $('contact'), contactAddr = $('contact-addr');
+    // XOR-encoded so the address never sits in the source as text
+    const addr = String.fromCharCode(...[0x28, 0x3f, 0x36, 0x3b, 0x23, 0x1a, 0x3c, 0x35, 0x35, 0x2e, 0x3f, 0x3e, 0x2d, 0x32, 0x3b, 0x36, 0x3f, 0x74, 0x39, 0x35, 0x37].map(c => c ^ 0x5a));
+    const roll = () => ({ ch: glyphs[Math.floor(Math.random() * glyphs.length)], pink: Math.random() < .2 });
+    const noise = Array.from(addr, roll);
+    let pinned = false, shown = 0, target = 0, hold = 1800;
+
+    function renderContact() {
+      let out = '';
+      for (let i = 0; i < addr.length; i++) {
+        if (i < Math.floor(shown)) { out += addr[i]; continue; }
+        if (Math.random() < .08) noise[i] = roll();
+        out += `<span class="g${noise[i].pink ? ' p' : ''}">${noise[i].ch}</span>`;
+      }
+      contactAddr.innerHTML = out;
+    }
+
+    function tickContact(dt) {
+      if (shown !== target) {
+        shown = target > shown ? Math.min(target, shown + dt * .035) : Math.max(target, shown - dt * .05);
+      } else if (!pinned && (hold -= dt) <= 0) {
+        target = target ? 0 : addr.length;
+        hold = target ? 2800 : 3600;
+      } else if (shown === addr.length) return;
+      renderContact();
+    }
+
+    function pin() {
+      if (pinned) return;
+      pinned = true;
+      target = addr.length;
+      contact.href = 'mailto:' + addr;
+      $('contact-sr').textContent = ' email ' + addr;
+      if (reduce) { shown = target; renderContact(); }
+    }
+
+    contact.addEventListener('mouseenter', pin);
+    contact.addEventListener('focus', pin);
+    contact.addEventListener('click', e => {
+      if (!pinned) { e.preventDefault(); pin(); }
+    });
+    if (reduce) pin();
+
+    /* ================= WebMCP ================= */
+
+    // Hands in-browser agents the contact address directly, instead of making them scrape the scramble.
+    if (navigator.modelContext && navigator.modelContext.registerTool) {
+      const warn = e => console.warn('WebMCP: could not register get_contact_email', e);
+      try {
+        Promise.resolve(navigator.modelContext.registerTool({
+          name: 'get_contact_email',
+          title: 'Get contact email',
+          description: 'Returns the email address for contacting Footed Whale, an AI engineering studio that evolves prompt pipelines and explores them with tree search.',
+          inputSchema: { type: 'object', properties: {} },
+          annotations: { readOnlyHint: true },
+          execute: async () => {
+            pin(); // show the human what the agent just got
+            return { content: [{ type: 'text', text: addr }] };
+          }
+        })).catch(warn);
+      } catch (e) { warn(e); }
+    }
+
+    /* ================= footer code ================= */
+
+    // Data-matrix block + 4-state bars; glitches now and then, and every glitch leaves one mutation behind.
+    const code = $('code'), cc = code.getContext('2d');
+    const CW = 228, CH = 36, CELL = CH / 10, BX = CH + 10, BARS = Math.floor((CW - BX) / 4);
+    const SPANS = [[0, 1], [0, .66], [.34, 1], [.34, .66]]; // full, ascender, descender, tracker
+    let seed = 0xf00d;
+    const srnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+    const matrix = [];
+    for (let y = 0; y < 10; y++) for (let x = 0; x < 10; x++) {
+      matrix.push(x === 0 || y === 9 ? 1 : y === 0 ? +(x % 2 === 0) : x === 9 ? y % 2 : +(srnd() < .5));
+    }
+    const states = Array.from({ length: BARS }, () => Math.floor(srnd() * 4));
+    const layers = [0, 1, 2].map(() => document.createElement('canvas'));
+    const tints = [null, '#ff2e88', '#3ef0ff'];
+
+    function paintCode(bars) {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      code.width = CW * dpr; code.height = CH * dpr;
+      layers.forEach((c, k) => {
+        c.width = code.width; c.height = code.height;
+        const g = c.getContext('2d');
+        g.setTransform(dpr, 0, 0, dpr, 0, 0);
+        g.fillStyle = tints[k] || '#ecebe4';
+        matrix.forEach((on, i) => on && g.fillRect((i % 10) * CELL, Math.floor(i / 10) * CELL, CELL, CELL));
+        bars.forEach((st, i) => {
+          const [a, b] = SPANS[st];
+          g.fillStyle = tints[k] || (i % 11 === 5 ? '#d4ff2a' : '#ecebe4');
+          g.fillRect(BX + i * 4, a * CH, 2, (b - a) * CH);
+        });
+      });
+    }
+
+    function drawCode(glitched) {
+      const w = code.width, h = code.height;
+      cc.clearRect(0, 0, w, h);
+      if (!glitched) { cc.drawImage(layers[0], 0, 0); return; }
+      const o = (1 + Math.random() * 3) * (w / CW);
+      cc.globalCompositeOperation = 'lighter';
+      cc.globalAlpha = .75;
+      cc.drawImage(layers[1], -o, 0);
+      cc.drawImage(layers[2], o, 0);
+      cc.globalAlpha = 1;
+      cc.globalCompositeOperation = 'source-over';
+      for (let y = 0; y < h;) {
+        const sh = Math.max(2, Math.floor(Math.random() * h * .45));
+        const dx = Math.random() < .55 ? 0 : (Math.random() - .5) * 18 * (w / CW);
+        cc.drawImage(layers[0], 0, y, w, sh, dx, y, w, sh);
+        y += sh;
+      }
+    }
+
+    function burstCode() {
+      if (Math.random() < .4) {
+        const corrupt = states.slice();
+        for (let n = 0; n < 6; n++) corrupt[Math.floor(Math.random() * BARS)] = Math.floor(Math.random() * 4);
+        paintCode(corrupt);
+      }
+      const end = performance.now() + 220 + Math.random() * 280;
+      let lastF = 0;
+      const f = t => {
+        if (t < end) {
+          if (t - lastF > 45) { lastF = t; drawCode(Math.random() < .75); }
+          requestAnimationFrame(f);
+          return;
+        }
+        states[Math.floor(Math.random() * BARS)] = Math.floor(Math.random() * 4);
+        paintCode(states);
+        drawCode(false);
+        scheduleCode();
+      };
+      requestAnimationFrame(f);
+    }
+
+    function scheduleCode(first) {
+      setTimeout(burstCode, first ? 3500 + Math.random() * 3000 : 7000 + Math.random() * 9000);
+    }
+
+    paintCode(states);
+    drawCode(false);
+    if (!reduce) scheduleCode(true);
+
+    blurb.addEventListener('click', next);
+    blurb.addEventListener('mouseenter', () => (hover = true));
+    blurb.addEventListener('mouseleave', () => (hover = false));
+
+    /* ================= loop ================= */
+
+    let last = performance.now(), acc = 0;
+    function frame(t) {
+      const dt = Math.min(64, t - last); last = t;
+
+      if (!reduce) {
+        acc += dt;
+        const per = phase === 'grow' ? 45 : 25;
+        while (acc > per) { acc -= per; if (phase !== 'fade') step(); }
+        flash *= .9;
+        tickInteract(dt);
+        // the settled tree waits while someone is poking at it
+        phaseT += phase === 'settle' && hot ? 0 : dt;
+        if (phase === 'settle' && phaseT > 5000) { phase = 'fade'; phaseT = 0; }
+        if (phase === 'fade') {
+          fade = Math.max(0, 1 - phaseT / 900);
+          if (fade === 0) { gen++; reset(); }
+        }
+        draw(false);
+        tickScramble();
+      }
+
+      if (!hover && !queue) held += dt;
+      bar.style.width = `${Math.min(100, (held / HOLD) * 100)}%`;
+      if (held >= HOLD) next();
+      tickContact(dt);
+
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  })();
+  </script>
 </body>
 </html>
