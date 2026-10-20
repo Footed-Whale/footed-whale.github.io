@@ -3,15 +3,23 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>フワ — Footed Whale</title>
+  <title>Footed Whale</title>
   <meta name="description" content="Footed Whale is an AI engineering studio. We evolve prompt pipelines and search the strange branches." />
   <meta name="theme-color" content="#0a0a0b" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23d4ff2a'/%3E%3Crect x='3' y='3' width='10' height='3' fill='%230a0a0b'/%3E%3Crect x='10' y='6' width='3' height='7' fill='%230a0a0b'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@900&text=%E3%83%95%E3%83%AF&display=swap" rel="stylesheet" />
+  <link rel="preload" href="assets/accelerando-fw.woff2" as="font" type="font/woff2" crossorigin />
   <style>
+    /* Accelerando-8192 glyphs (one per token id, U+F0000 + id), subset by tools/tokens.mjs */
+    @font-face {
+      font-family: "Accelerando";
+      src: url("assets/accelerando-fw.woff2") format("woff2");
+      unicode-range: U+F0000-F1FFF;
+      font-display: block;
+    }
+
     :root {
       --ink: #0a0a0b;
       --ink-2: #141416;
@@ -23,7 +31,7 @@
       --cyan: #3ef0ff;
       --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
       --disp: "Archivo", "Arial Narrow", sans-serif;
-      --jp: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+      --tok: "Accelerando", var(--mono);
     }
 
     * { box-sizing: border-box; }
@@ -157,26 +165,18 @@
     .logo {
       position: relative;
       margin: 0;
-      font-family: var(--jp);
-      font-weight: 900;
-      font-size: clamp(132px, 22vw, 340px);
-      line-height: .86;
-      letter-spacing: -.06em;
+      line-height: 0;
       color: var(--acid);
-      text-transform: none;
     }
 
-    .logo::before, .logo::after {
-      content: attr(data-text);
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-    }
-    .logo::before { color: var(--pink); transform: translate(-.035em, 0); mix-blend-mode: screen; opacity: 0; }
-    .logo::after { color: var(--cyan); transform: translate(.035em, 0); mix-blend-mode: screen; opacity: 0; }
+    /* F + W token glyphs; the two ghost copies carry the chromatic glitch */
+    .logo svg { display: block; height: clamp(104px, 17vw, 264px); width: auto; overflow: visible; }
+    .logo .ghost { position: absolute; top: 0; left: 0; pointer-events: none; mix-blend-mode: screen; opacity: 0; }
+    .logo .ghost.p { color: var(--pink); transform: translate(-1.5%, 0); }
+    .logo .ghost.c { color: var(--cyan); transform: translate(1.5%, 0); }
 
-    .logo.glitch::before { opacity: .9; animation: slice 280ms steps(2) both; }
-    .logo.glitch::after { opacity: .9; animation: slice 280ms steps(2) reverse both; }
+    .logo.glitch .ghost.p { opacity: .9; animation: slice 280ms steps(2) both; }
+    .logo.glitch .ghost.c { opacity: .9; animation: slice 280ms steps(2) reverse both; }
 
     @keyframes slice {
       0%   { clip-path: inset(10% 0 70% 0); }
@@ -246,7 +246,9 @@
       cursor: pointer;
       user-select: text;
     }
-    .blurb .g { color: var(--acid); font-family: var(--mono); font-weight: 400; font-stretch: 100%; }
+    .blurb .g { color: var(--acid); font-family: var(--tok); font-weight: 400; font-stretch: 100%; }
+    /* token glyph ink sits at .18–.82em above the baseline; drop it onto the cap line */
+    .blurb .g, .contact .addr .g { position: relative; top: .12em; }
     .blurb .g.p { color: var(--pink); }
 
     .progress {
@@ -283,6 +285,7 @@
 
     .barcode { display: block; width: 228px; height: 36px; }
     .barcode + span { display: block; margin-top: 4px; color: var(--dim); font-size: 9px; }
+    .tk { font-family: var(--tok); text-transform: none; letter-spacing: 0; }
 
     .rule {
       height: 10px;
@@ -308,7 +311,7 @@
       white-space: nowrap;
     }
     /* scramble glyphs fall back to non-mono fonts; pin each to one cell so the width never shifts */
-    .contact .addr .g { display: inline-block; width: 1ch; overflow: hidden; text-align: center; vertical-align: top; color: var(--acid); }
+    .contact .addr .g { display: inline-block; width: 1ch; overflow: hidden; text-align: center; vertical-align: top; color: var(--acid); font-family: var(--tok); font-size: .85em; line-height: 1.4; }
     .contact .addr .g.p { color: var(--pink); }
     .contact:hover .addr, .contact:focus-visible .addr { border-color: var(--acid); }
     .contact:focus-visible { outline: 1px solid var(--pink); outline-offset: 3px; }
@@ -356,7 +359,18 @@
 
     <section class="stage">
       <div class="mark">
-        <h1 class="logo" id="logo" data-text="フワ" aria-label="フワ — Footed Whale">フワ</h1>
+        <h1 class="logo" id="logo">
+          <span class="sr">Footed Whale</span>
+          <svg viewBox="14 14 148 72" aria-hidden="true">
+            <!-- Accelerando-8192 tokens 37 "F" + 54 "W" -->
+            <g id="fw" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="square">
+              <path d="M 20 20 L 20 50 M 20 20 L 50 50 M 80 20 L 50 50 M 20 50 L 20 80" />
+              <path transform="translate(76 0)" d="M 20 20 L 20 50 M 20 20 L 50 50 M 80 20 L 50 50 M 50 50 L 20 80" />
+            </g>
+          </svg>
+          <svg class="ghost p" viewBox="14 14 148 72" aria-hidden="true"><use href="#fw" /></svg>
+          <svg class="ghost c" viewBox="14 14 148 72" aria-hidden="true"><use href="#fw" /></svg>
+        </h1>
         <div class="wordmark">FOOTED WHALE <small>AMBULOCETUS / 49 MYA</small></div>
         <div class="chips">
           <span class="chip pink">▲ Unsupervised exploration</span>
@@ -380,10 +394,10 @@
     </section>
 
     <footer>
-      <div><canvas class="barcode" id="code" aria-hidden="true"></canvas><span>フワ-0049-MYA-∞</span></div>
+      <div><canvas class="barcode" id="code" aria-hidden="true"></canvas><span><span class="tk">&#xF0025;&#xF0036;</span>-0049-MYA-∞</span></div>
       <div class="rule"></div>
       <div class="links">
-        <a class="contact" id="contact" href="#"><span class="k">Contact ▸</span><span class="sr" id="contact-sr"> email Footed Whale (reveals address)</span><span class="addr" id="contact-addr" aria-hidden="true">ｺﾝﾀｸﾄ#ﾌｯﾃｯﾄﾞ/ﾎｴｰﾙ_ｺﾑ01ｦﾝ</span></a><br />
+        <a class="contact" id="contact" href="#"><span class="k">Contact ▸</span><span class="sr" id="contact-sr"> email Footed Whale (reveals address)</span><span class="addr" id="contact-addr" aria-hidden="true"></span></a><br />
         © 2026 Footed Whale
       </div>
     </footer>
@@ -395,7 +409,13 @@
     const $ = id => document.getElementById(id);
     const pad = (n, w) => String(n).padStart(w, '0');
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-    const glyphs = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝ01/<>#_';
+    // Scramble noise is Accelerando-8192 token glyphs: [glyph id, chars covered] for each transmission.
+    // Generated by tools/tokens.mjs; a line missing from the table just scrambles through the pool.
+    const tokens = {"We don't write prompts. We breed them.":[[2167,2],[4128,6],[5067,6],[3362,5],[555,2],[82,1],[13,1],[1416,3],[5218,4],[295,2],[1373,5],[13,1]],"Generation 4,812. Fitness +0.3%. Something grew legs.":[[5926,5],[387,5],[220,1],[19,1],[11,1],[23,1],[899,2],[13,1],[454,2],[278,2],[2816,4],[659,2],[15,1],[13,1],[18,1],[4,1],[13,1],[336,2],[310,2],[3272,6],[3727,4],[86,1],[3050,4],[82,1],[13,1]],"Monte Carlo is not a place. It is a way of getting lost on purpose.":[[7088,3],[411,2],[4004,4],[746,2],[382,3],[625,4],[261,2],[2475,6],[13,1],[1225,3],[382,3],[261,2],[2006,4],[328,3],[4811,8],[305,2],[564,3],[402,3],[4962,4],[4397,4],[13,1]],"Every prompt in production is a mutation nobody has killed yet.":[[36,1],[1437,4],[3362,5],[555,2],[306,3],[7142,11],[382,3],[261,2],[6505,4],[387,5],[297,2],[630,2],[1558,3],[853,4],[372,2],[7905,5],[5073,4],[13,1]],"UCB1 says: visit the weird branch. We listen.":[[52,1],[34,1],[33,1],[16,1],[5003,5],[25,1],[4030,6],[290,4],[581,3],[2716,3],[1294,3],[4953,4],[13,1],[1416,3],[1562,5],[262,2],[13,1]],"Selection pressure, applied to language.":[[1584,2],[1659,7],[4989,6],[627,3],[11,1],[1419,3],[5649,5],[316,3],[6439,9],[13,1]],"Fifty million years ago a whale had feet. We kept the receipts.":[[37,1],[366,2],[1206,2],[5749,8],[2101,6],[5288,4],[261,2],[471,3],[1167,3],[1458,4],[1193,3],[292,2],[13,1],[1416,3],[1610,3],[555,2],[290,4],[2707,5],[488,2],[1561,2],[13,1]],"Your pipeline has ancestors. We read the fossils.":[[56,1],[401,3],[275,2],[488,2],[7250,5],[853,4],[448,3],[66,1],[376,3],[914,3],[13,1],[1416,3],[1729,5],[290,4],[285,2],[2907,3],[5879,3],[13,1]],"Exploration is expensive. Not exploring costs more.":[[992,2],[528,2],[267,2],[387,5],[382,3],[2794,4],[5206,6],[13,1],[4037,4],[3421,5],[7443,5],[3097,5],[82,1],[945,5],[13,1]],"The eval is the environment. The environment is hungry.":[[976,3],[319,2],[1105,3],[382,3],[290,4],[5870,12],[13,1],[623,4],[5870,12],[382,3],[7523,4],[896,2],[88,1],[13,1]],"We prune the tree so your product doesn't have to.":[[2167,2],[550,3],[2561,3],[290,4],[8165,5],[813,3],[634,5],[1888,8],[2226,5],[3023,3],[679,5],[316,3],[13,1]],"Survival of the fittest prompt. Funerals for the rest.":[[50,1],[330,2],[85,1],[4552,4],[328,3],[290,4],[285,2],[1387,3],[376,3],[3362,5],[555,2],[13,1],[454,2],[373,2],[259,2],[1288,3],[395,4],[290,4],[2867,5],[13,1]]};
+    const glyph = id => String.fromCodePoint(0xF0000 + id);
+    const pool = [...new Set([37, 54, ...Object.values(tokens).flat().map(t => t[0])])].map(glyph);
+    const anyGlyph = () => pool[Math.floor(Math.random() * pool.length)];
+    document.fonts.load('10px Accelerando', pool.join('')).catch(() => {});
 
     /* ================= MCTS background ================= */
 
@@ -571,10 +591,10 @@
     }
 
     const noisy = (str, amt) => amt <= 0 ? str : str.replace(/[^ ]/g, ch =>
-      Math.random() < amt * .7 ? glyphs[Math.floor(Math.random() * glyphs.length)] : ch);
+      Math.random() < amt * .7 ? anyGlyph() : ch);
 
     function tag(n, text, color) {
-      ctx.font = '10px "JetBrains Mono", monospace';
+      ctx.font = '10px "JetBrains Mono", Accelerando, monospace';
       const lw = ctx.measureText(text).width;
       const x = n.x + 14 + lw > W - 8 ? n.x - 14 - lw : n.x + 14;
       ctx.fillStyle = 'rgba(10,10,11,.85)';
@@ -702,13 +722,24 @@
     const blurb = $('blurb'), bar = $('tx-bar'), count = $('tx-count'), logo = $('logo');
     let idx = 0, held = 0, hover = false, queue = null, qf = 0;
 
+    // per-character glyph of the token covering it, or null if the table doesn't match the text
+    function tokenGlyphs(text) {
+      const t = tokens[text], out = [];
+      if (!t) return null;
+      for (const [id, n] of t) for (let k = 0; k < n; k++) out.push(glyph(id));
+      return out.length === text.length ? out : null;
+    }
+
     function scramble(to) {
       const from = blurb.textContent;
       const len = Math.max(from.length, to.length);
+      const src = tokenGlyphs(from), dst = tokenGlyphs(to);
       queue = [];
       for (let i = 0; i < len; i++) {
         const start = Math.floor(Math.random() * 18) + Math.floor(i * .4);
-        queue.push({ from: from[i] || '', to: to[i] || '', start, end: start + 8 + Math.floor(Math.random() * 16), ch: '' });
+        // noise first, then the character settles on its real token glyph before resolving
+        const tk = (i < to.length ? dst && dst[i] : src && src[i]) || null;
+        queue.push({ from: from[i] || '', to: to[i] || '', start, end: start + 8 + Math.floor(Math.random() * 16), ch: '', tk });
       }
       qf = 0;
     }
@@ -720,7 +751,8 @@
         if (qf >= q.end) { done++; out += q.to; }
         else if (qf >= q.start) {
           if (q.to === ' ') { out += ' '; continue; }
-          if (!q.ch || Math.random() < .3) q.ch = glyphs[Math.floor(Math.random() * glyphs.length)];
+          if (q.tk && qf >= q.end - 6) q.ch = q.tk;
+          else if (!q.ch || Math.random() < .3) q.ch = anyGlyph();
           out += `<span class="g${Math.random() < .15 ? ' p' : ''}">${q.ch}</span>`;
         } else out += q.from.replace('<', '&lt;');
       }
@@ -749,7 +781,7 @@
     const contact = $('contact'), contactAddr = $('contact-addr');
     // XOR-encoded so the address never sits in the source as text
     const addr = String.fromCharCode(...[0x28, 0x3f, 0x36, 0x3b, 0x23, 0x1a, 0x3c, 0x35, 0x35, 0x2e, 0x3f, 0x3e, 0x2d, 0x32, 0x3b, 0x36, 0x3f, 0x74, 0x39, 0x35, 0x37].map(c => c ^ 0x5a));
-    const roll = () => ({ ch: glyphs[Math.floor(Math.random() * glyphs.length)], pink: Math.random() < .2 });
+    const roll = () => ({ ch: anyGlyph(), pink: Math.random() < .2 });
     const noise = Array.from(addr, roll);
     let pinned = false, shown = 0, target = 0, hold = 1800;
 
